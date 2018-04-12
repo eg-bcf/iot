@@ -189,10 +189,15 @@ class App extends Component {
 
     this.state = {
       data: [],
+      intervalId: 0,
+      currentCount: 0
     };
+
+    this.timer = this.timer.bind(this)
   }
 
   fetchDataFromServer() {
+    console.log("here")
     axios.get('/leak_test')
       .then(result => //console.log(result.data)
       getUniqueKeys(result.data)
@@ -210,13 +215,36 @@ class App extends Component {
   }
 
   componentDidMount() {
+    var intervalId = setInterval(this.timer, 1000);
+    this.setState({intervalId: intervalId});
+    this.setState({currentCount: 5 });
     this.fetchDataFromServer();
   }
 
+  componentWillUnmount() {
+     // use intervalId from the state to clear the interval
+     clearInterval(this.state.intervalId);
+  }
+
+  timer() {
+    //console.log(this.state.intervalId);
+    //console.log(this.state.currentCount);
+    var newCount = this.state.currentCount - 1;
+    if(newCount >= 0) {
+        this.setState({ currentCount: newCount });
+    } else {
+        this.setState({currentCount: 5 });
+        this.fetchDataFromServer();
+        //clearInterval(this.state.intervalId);
+    }
+  }
+
   render() {
-    console.log(this.state.data)
     return (
       <div className="App">
+        <section>
+          {this.state.currentCount}
+        </section>
       if(this.state.data.length !== 0) {
         <LineChart width={1000} height={500} data={ this.state.data }
         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
